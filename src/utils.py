@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-# @Author: Luis Condados
-# @Date:   2023-07-29 15:41:01
-# @Last Modified by:   Luis Condados
-# @Last Modified time: 2023-08-03 18:59:32
+# we need to modify it to extract the faces 
 import numpy as np
 import cv2
 import os 
