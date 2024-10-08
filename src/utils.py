@@ -110,7 +110,7 @@ def draw_boxes_with_scores(image, boxes, scores):
         try:
             face = image_copy[box[1]:box[3], box[0]:box[2]]
             image_name = f"./faces/{id}.jpg"
-            print(f"Saving face to {image_name}")
+            # print(f"Saving face to {image_name}")
             cv2.imwrite(image_name, face)
             id+=1
         except Exception as e:
