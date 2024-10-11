@@ -101,6 +101,17 @@ def hex_to_bgr(hex_color):
     # Convert RGB to BGR
     bgr_color = (b, g, r)
     return bgr_color
+def expand_bbox(x1, y1, x2, y2, padding):
+    # Increase the size of the bounding box by the padding value
+    new_x1 = max(0, x1 - padding)  # Ensure x1 doesn't go below 0
+    new_y1 = max(0, y1 - padding)  # Ensure y1 doesn't go below 0
+    new_x2 = x2 + padding
+    new_y2 = y2 + padding
+    
+    return new_x1, new_y1, new_x2, new_y2
+
+
+
 def draw_boxes_with_scores(image, boxes, scores,bounding_box=True,display_prediction_labels=False,save=False,circle_blur_face=False,square_blur_face=False):
     image_fg = image.copy()
     mask_shape = (image.shape[0], image.shape[1], 1)
@@ -120,7 +131,10 @@ def draw_boxes_with_scores(image, boxes, scores,bounding_box=True,display_predic
         #crop face and save it
         try:
             if save:
-                face = image_fg[box[1]:box[3], box[0]:box[2]]
+                x1, y1, x2, y2 = box
+                padding = 80  # Amount to increase the size
+                x1, y1, x2, y2 = expand_bbox(x1, y1, x2, y2, padding)
+                face=image_fg[y1:y2, x1:x2]
                 image_name = f"./faces/{id}.jpg"
                 print(f"Saving face to {image_name}")
                 cv2.imwrite(image_name, face)
