@@ -1,4 +1,4 @@
-# we need to modify it to extract the faces 
+# added many features 
 import numpy as np
 import cv2
 import os 
@@ -89,8 +89,11 @@ def put_text_on_image(image, text, color=(255, 255, 255)):
     return image
 
 
-def draw_boxes_with_scores(image, boxes, scores):
-    image_copy = image.copy()
+def draw_boxes_with_scores(image, boxes, scores,bounding_box=True,save=False,circle_blur_face=False,square_blur_face=False):
+    image_fg = image.copy()
+    mask_shape = (image.shape[0], image.shape[1], 1)
+    mask = np.full(mask_shape, 0, dtype=np.uint8)
+    # print(boxes)
     global id
     if len(boxes) == 0:
         return image
@@ -104,39 +107,129 @@ def draw_boxes_with_scores(image, boxes, scores):
         box = box.astype(int)
         #crop face and save it
         try:
-            face = image_copy[box[1]:box[3], box[0]:box[2]]
-            image_name = f"./faces/{id}.jpg"
-            # print(f"Saving face to {image_name}")
-            cv2.imwrite(image_name, face)
-            id+=1
+            if save:
+                face = image_fg[box[1]:box[3], box[0]:box[2]]
+                image_name = f"./faces/{id}.jpg"
+                print(f"Saving face to {image_name}")
+                cv2.imwrite(image_name, face)
+                id+=1
         except Exception as e:
             pass
+        if bounding_box:
+            # Draw the box on the image
+            cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
+
+            # Define the text parameters
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            font_scale = 0.8
+            color = (255, 255, 255)
+            thickness = 1
+
+            # Create the text string
+            text = '{:.2f}'.format(score)
+
+            # Determine the text size
+            text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
+
+            # Define the text position relative to the box
+            text_x = box[0]
+            text_y = box[1] - text_size[1]
+
+            # Draw the text background rectangle
+            cv2.rectangle(image, (text_x, text_y), (text_x + text_size[0], text_y + text_size[1]), (0, 255, 0), -1)
+            # Draw the text on top of the background rectangle
+            cv2.putText(image, text, (text_x, text_y + text_size[1]), font, font_scale, color, thickness)
             
-        # Draw the box on the image
-        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
+            
+        if square_blur_face:
+            try:
+                pixel_size = 0.1
+                x1, y1, x2, y2 = box
 
-        # Define the text parameters
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 0.8
-        color = (255, 255, 255)
-        thickness = 1
+                # Ensure the bounding box coordinates are valid
+                if x1 >= x2 or y1 >= y2:
+                    print("Invalid bounding box coordinates:", box)
+                    continue  # Skip this iteration if the box is invalid
 
-        # Create the text string
-        text = '{:.2f}'.format(score)
+                face_img = image[y1:y2, x1:x2].copy()
+                
+                # Calculate the desired size based on the bounding box
+                desired_width = x2 - x1
+                desired_height = y2 - y1
+                
+                # Calculate the small size for resizing
+                small_width = int(desired_width * pixel_size)
+                small_height = int(desired_height * pixel_size)
 
-        # Determine the text size
-        text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
+                # Ensure the small size is at least 1x1
+                small_width = max(1, small_width)
+                small_height = max(1, small_height)
 
-        # Define the text position relative to the box
-        text_x = box[0]
-        text_y = box[1] - text_size[1]
+                # Resize the face image to a smaller size
+                face_img = cv2.resize(
+                    face_img,
+                    dsize=(small_width, small_height),
+                    interpolation=cv2.INTER_NEAREST,
+                )
+                
+                # Resize back to the original size of the bounding box
+                face_img_resized = cv2.resize(
+                    face_img,
+                    dsize=(desired_width, desired_height),
+                    interpolation=cv2.INTER_NEAREST,
+                )
+                
+                # Ensure the face image fits exactly in the bounding box
+                if face_img_resized.shape[0] != (y2 - y1) or face_img_resized.shape[1] != (x2 - x1):
+                    # Create a blank image with the bounding box size
+                    blank_face_img = np.zeros((desired_height, desired_width, 3), dtype=np.uint8)
 
-        # Draw the text background rectangle
-        cv2.rectangle(image, (text_x, text_y), (text_x + text_size[0], text_y + text_size[1]), (0, 255, 0), -1)
+                    # Get the actual width and height of the resized face image
+                    actual_height, actual_width = face_img_resized.shape[:2]
 
-        # Draw the text on top of the background rectangle
-        cv2.putText(image, text, (text_x, text_y + text_size[1]), font, font_scale, color, thickness)
+                    # Calculate the cropping region if resized image is larger
+                    if actual_height > desired_height or actual_width > desired_width:
+                        face_img_resized = cv2.resize(face_img_resized, (desired_width, desired_height), interpolation=cv2.INTER_LINEAR)
 
+                    # Place the resized image into the blank image
+                    blank_face_img[:actual_height, :actual_width] = face_img_resized
+
+                    # Update face_img_resized to the blank face image
+                    face_img_resized = blank_face_img
+
+                # Assign the resized face image to the original image
+                image[y1:y2, x1:x2] = face_img_resized
+            except Exception as e:
+                pass
+        if circle_blur_face:
+            x1, y1, x2, y2 = box
+            print(x1, y1, x2, y2)
+
+            # Ensure coordinates are within image bounds
+            y1 = max(y1, 0)
+            y2 = min(y2, image_fg.shape[0])
+            x1 = max(x1, 0)
+            x2 = min(x2, image_fg.shape[1])
+
+            # Check if the resulting coordinates form a valid region
+            if x1 < x2 and y1 < y2:
+                w = x2 - x1
+                h = y2 - y1
+
+                ksize = (image.shape[0] // 2, image.shape[1] // 2)
+                image_fg[y1:y2, x1:x2] = cv2.blur(image_fg[y1:y2, x1:x2], ksize)
+
+                # Calculate the center of the ellipse
+                center = ((x1 + x2) // 2, (y1 + y2) // 2)
+
+                # Draw the filled ellipse on the mask
+                cv2.ellipse(mask, center, (w // 2, h // 2), 0, 0, 360, 255, -1)
+    if circle_blur_face:
+        # Combine all masks into the final mask after processing all boxes
+        inverse_mask = cv2.bitwise_not(mask)
+        image_bg = cv2.bitwise_and(image, image, mask=inverse_mask)
+        image_fg = cv2.bitwise_and(image_fg, image_fg, mask=mask)
+        image = cv2.add(image_bg, image_fg)
     return image
 
 
