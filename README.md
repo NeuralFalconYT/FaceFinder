@@ -15,5 +15,5 @@ https://github.com/user-attachments/assets/c2df7b3b-5f3a-41dd-96e7-1f539b15c706
 
 
 ### Credit :
-[Gabriellgpc](https://github.com/Gabriellgpc/ultra-lightweight-face-detection)
+[Gabriellgpc](https://github.com/Gabriellgpc/ultra-lightweight-face-detection) <br>
 [Video From Pixabay](https://pixabay.com/videos/alley-people-walk-street-ukraine-39837/)
