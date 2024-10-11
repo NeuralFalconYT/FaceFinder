@@ -112,7 +112,32 @@ def expand_bbox(x1, y1, x2, y2, padding):
 
 
 
-def draw_boxes_with_scores(image, boxes, scores,bounding_box=True,display_prediction_labels=False,save=False,circle_blur_face=False,square_blur_face=False):
+def resize_if_below_threshold(image, min_width=300, min_height=400):
+    height, width = image.shape[:2]  # Get current dimensions
+
+    # Check if the image dimensions are below the specified threshold
+    if width < min_width or height < min_height:
+        # Calculate new dimensions while maintaining aspect ratio
+        aspect_ratio = width / height
+        if aspect_ratio > 1:  # Landscape
+            new_width = min_width
+            new_height = int(min_width / aspect_ratio)
+        else:  # Portrait or square
+            new_height = min_height
+            new_width = int(min_height * aspect_ratio)
+
+        # Resize the image
+        resized_image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_LINEAR)
+        return resized_image
+    else:
+        print("Image is already equal to or larger than the minimum dimensions.")
+    return image  # Return the original image if no resizing is done
+
+
+
+
+
+def draw_boxes_with_scores(image, boxes, scores,bounding_box=True,display_prediction_labels=False,save=False,save_faces_padding=0,circle_blur_face=False,square_blur_face=False):
     image_fg = image.copy()
     mask_shape = (image.shape[0], image.shape[1], 1)
     mask = np.full(mask_shape, 0, dtype=np.uint8)
@@ -132,9 +157,10 @@ def draw_boxes_with_scores(image, boxes, scores,bounding_box=True,display_predic
         try:
             if save:
                 x1, y1, x2, y2 = box
-                padding = 80  # Amount to increase the size
+                padding = save_faces_padding
                 x1, y1, x2, y2 = expand_bbox(x1, y1, x2, y2, padding)
                 face=image_fg[y1:y2, x1:x2]
+                face=resize_if_below_threshold(face, min_width=300, min_height=400)
                 image_name = f"./faces/{id}.jpg"
                 print(f"Saving face to {image_name}")
                 cv2.imwrite(image_name, face)
