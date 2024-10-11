@@ -1,8 +1,9 @@
-# added many features 
+#modified by: neuralfalcon 
 import numpy as np
 import cv2
 import os 
 import shutil
+
 id=1
 store_folder="./faces"
 if os.path.exists(store_folder):
@@ -88,8 +89,19 @@ def put_text_on_image(image, text, color=(255, 255, 255)):
 
     return image
 
-
-def draw_boxes_with_scores(image, boxes, scores,bounding_box=True,save=False,circle_blur_face=False,square_blur_face=False):
+def hex_to_bgr(hex_color):
+    # Remove the '#' if it's there
+    hex_color = hex_color.lstrip('#')
+    
+    # Convert the hex to RGB
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+    
+    # Convert RGB to BGR
+    bgr_color = (b, g, r)
+    return bgr_color
+def draw_boxes_with_scores(image, boxes, scores,bounding_box=True,display_prediction_labels=False,save=False,circle_blur_face=False,square_blur_face=False):
     image_fg = image.copy()
     mask_shape = (image.shape[0], image.shape[1], 1)
     mask = np.full(mask_shape, 0, dtype=np.uint8)
@@ -117,28 +129,50 @@ def draw_boxes_with_scores(image, boxes, scores,bounding_box=True,save=False,cir
             pass
         if bounding_box:
             # Draw the box on the image
-            cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
+            hex_color={"green":"#00ff51","yellow":"#ffd500","cyan":"#00ffff","blue":"#0066ff","red":"#ff0000","white":"#ffffff","light_green":"#00ffae"}
+            color=hex_to_bgr(hex_color["green"])
+            cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), color, 1)
+            x1, y1, x2, y2 = box
+            l=30
+            t=2
+            face_width = x2 - x1
+            face_height = y2 - y1
+            l = int(l * min(face_width, face_height) / 100)
+            
+            # Draw top-left corner
+            cv2.line(image, (x1, y1), (x1 + l, y1), color, thickness=t)
+            cv2.line(image, (x1, y1), (x1, y1 + l), color, thickness=t)
+            # Draw top-right corner
+            cv2.line(image, (x2, y1), (x2 - l, y1), color, thickness=t)
+            cv2.line(image, (x2, y1), (x2, y1 + l), color, thickness=t)
+            # Draw bottom-left corner
+            cv2.line(image, (x1, y2), (x1 + l, y2), color, thickness=t)
+            cv2.line(image, (x1, y2), (x1, y2 - l), color, thickness=t)
+            # Draw bottom-right corner
+            cv2.line(image, (x2, y2), (x2 - l, y2), color, thickness=t)
+            cv2.line(image, (x2, y2), (x2, y2 - l), color, thickness=t)
+                    
+            if display_prediction_labels:
+                # Define the text parameters
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                font_scale = 0.8
+                color = (255, 255, 255)
+                thickness = 1
 
-            # Define the text parameters
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            font_scale = 0.8
-            color = (255, 255, 255)
-            thickness = 1
+                # Create the text string
+                text = '{:.2f}'.format(score)
 
-            # Create the text string
-            text = '{:.2f}'.format(score)
+                # Determine the text size
+                text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
 
-            # Determine the text size
-            text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
+                # Define the text position relative to the box
+                text_x = box[0]
+                text_y = box[1] - text_size[1]
 
-            # Define the text position relative to the box
-            text_x = box[0]
-            text_y = box[1] - text_size[1]
-
-            # Draw the text background rectangle
-            cv2.rectangle(image, (text_x, text_y), (text_x + text_size[0], text_y + text_size[1]), (0, 255, 0), -1)
-            # Draw the text on top of the background rectangle
-            cv2.putText(image, text, (text_x, text_y + text_size[1]), font, font_scale, color, thickness)
+                # Draw the text background rectangle
+                cv2.rectangle(image, (text_x, text_y), (text_x + text_size[0], text_y + text_size[1]), hex_to_bgr(hex_color["blue"]), -1)
+                # Draw the text on top of the background rectangle
+                cv2.putText(image, text, (text_x, text_y + text_size[1]), font, font_scale, color, thickness)
             
             
         if square_blur_face:
@@ -203,7 +237,7 @@ def draw_boxes_with_scores(image, boxes, scores,bounding_box=True,save=False,cir
                 pass
         if circle_blur_face:
             x1, y1, x2, y2 = box
-            print(x1, y1, x2, y2)
+            # print(x1, y1, x2, y2)
 
             # Ensure coordinates are within image bounds
             y1 = max(y1, 0)
