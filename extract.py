@@ -87,8 +87,8 @@ def main(video_source, confidence=0.5, play_fast=True, skip_frames=False, displa
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    # video_source = 0
-    video_source = "video.mp4"  # Path to the video file
+    video_source = 0
+    # video_source = "video.mp4"  # Path to the video file
     confidence = 0.5
     play_fast = True
     skip_frames = False
