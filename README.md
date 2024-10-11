@@ -14,6 +14,10 @@ https://docs.openvino.ai/2024/omz_models_model_ultra_lightweight_face_detection_
 https://github.com/user-attachments/assets/c2df7b3b-5f3a-41dd-96e7-1f539b15c706
 
 
+https://github.com/user-attachments/assets/e73e5c80-797f-47ef-a010-3162e3d37eaa
+
+
+
 ### Credit :
 [Gabriellgpc](https://github.com/Gabriellgpc/ultra-lightweight-face-detection) <br>
 [Video From Pixabay](https://pixabay.com/videos/alley-people-walk-street-ukraine-39837/)
