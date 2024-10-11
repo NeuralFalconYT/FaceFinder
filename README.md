@@ -9,7 +9,7 @@ https://docs.openvino.ai/2024/omz_models_model_ultra_lightweight_face_detection_
 * Face Blurring Options: Provides options to blur faces in both rounded and squared styles.
 * Save Output Video
 
-## I don't own this video. This Video From [Pixabay](https://pixabay.com/videos/alley-people-walk-street-ukraine-39837/).
+## I don't own this video. This Video From [Pixabay](https://pixabay.com/videos/alley-people-walk-street-ukraine-39837/). Posted by [alexkopeykin](https://pixabay.com/users/alexkopeykin-6178059/)
 
 https://github.com/user-attachments/assets/c2df7b3b-5f3a-41dd-96e7-1f539b15c706
 
