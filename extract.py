@@ -5,7 +5,7 @@ import cv2
 from src.face_detector import FaceDetector
 from src import utils
 
-def main(video_source, confidence=0.5, play_fast=True, skip_frames=False, display_fps=False, bounding_box=True, save_faces=False, circle_blur_face=False, square_blur_face=False, save_video=False):
+def main(video_source, confidence=0.5,mirror=False, play_fast=True, skip_frames=False, display_fps=False, bounding_box=True, display_prediction_labels=False,save_faces=False, circle_blur_face=False, square_blur_face=False, save_video=False):
     # Initialize the face detector with the specified model
     detector = FaceDetector(model='model/public/ultra-lightweight-face-detection-rfb-320/FP16/ultra-lightweight-face-detection-rfb-320.xml',
                             confidence_thr=confidence,
@@ -39,7 +39,8 @@ def main(video_source, confidence=0.5, play_fast=True, skip_frames=False, displa
 
     while True:
         ret, frame = video.read()
-        frame = cv2.flip(frame, 1)
+        if mirror:
+            frame = cv2.flip(frame, 1)
         if not ret:
             print("Error reading frame from the video source.")
             break
@@ -55,7 +56,7 @@ def main(video_source, confidence=0.5, play_fast=True, skip_frames=False, displa
             fps_avg = fps_cum / (n_frames // frame_skip + 1)
 
             # Draw bounding boxes and display FPS
-            frame = utils.draw_boxes_with_scores(frame, bboxes, scores, bounding_box=bounding_box,
+            frame = utils.draw_boxes_with_scores(frame, bboxes, scores, bounding_box=bounding_box,display_prediction_labels=display_prediction_labels,
                                                   save=save_faces, circle_blur_face=circle_blur_face,
                                                   square_blur_face=square_blur_face)
             if display_fps:
@@ -89,16 +90,18 @@ def main(video_source, confidence=0.5, play_fast=True, skip_frames=False, displa
 if __name__ == '__main__':
     video_source = 0
     # video_source = "video.mp4"  # Path to the video file
-    confidence = 0.5
+    confidence = 0.6
+    mirror=False
     play_fast = True
     skip_frames = False
-    display_fps = False
-    bounding_box = False
+    display_fps = True
+    bounding_box = True
+    display_prediction_labels = True
     save_faces = False
     circle_blur_face = False
-    square_blur_face = True
+    square_blur_face = False
     save_video = True  # Set to True to save video
 
-    main(video_source=video_source, confidence=confidence, play_fast=play_fast, skip_frames=skip_frames,
-         display_fps=display_fps, bounding_box=bounding_box, save_faces=save_faces,
+    main(video_source=video_source, confidence=confidence,mirror=mirror, play_fast=play_fast, skip_frames=skip_frames,
+         display_fps=display_fps, bounding_box=bounding_box, display_prediction_labels=display_prediction_labels,save_faces=save_faces,
          circle_blur_face=circle_blur_face, square_blur_face=square_blur_face, save_video=save_video)
