@@ -173,7 +173,10 @@ def draw_boxes_with_scores(image, boxes, scores,bounding_box=True,display_predic
             color=hex_to_bgr(hex_color["green"])
             cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), color, 1)
             x1, y1, x2, y2 = box
-            l=30
+            # l=30
+            width, height = x2 - x1, y2 - y1
+            # Set `l` to a percentage of the bounding box width or height
+            l = min(width, height) // 5
             t=2
             face_width = x2 - x1
             face_height = y2 - y1
