@@ -1,8 +1,20 @@
 # FaceFinder: Video Face Extraction Tool
+```
+git clone https://github.com/NeuralFalconYT/FaceFinder.git
+```
+```
+cd FaceFinder
+```
+```
+pip install -r requirements.txt
+```
+```
+python extract.py
+```
+
 Model: ultra-lightweight-face-detection-rfb-320
 https://docs.openvino.ai/2024/omz_models_model_ultra_lightweight_face_detection_rfb_320.html <br>
-```pip install -r requirements.txt```<br>
-```python extract.py```
+
 ## Support Features
 * High Frame Rate: Supports super-fast playback with FPS exceeding 120.
 * Face Extraction: Efficiently extracts faces from video frames.
