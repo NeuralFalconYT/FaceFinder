@@ -101,7 +101,7 @@ if __name__ == '__main__':
     save_faces_padding=0
     circle_blur_face = False
     square_blur_face = False
-    save_video = True  # Set to True to save video
+    save_video = False  # Set to True to save video
 
     main(video_source=video_source, confidence=confidence,mirror=mirror, play_fast=play_fast, skip_frames=skip_frames,
          display_fps=display_fps, bounding_box=bounding_box, display_prediction_labels=display_prediction_labels,save_faces=save_faces,
