@@ -167,51 +167,7 @@ def draw_boxes_with_scores(image, boxes, scores,bounding_box=True,display_predic
                 id+=1
         except Exception as e:
             pass
-        if bounding_box:
-            # Draw the box on the image
-            hex_color={"green":"#00ff51","yellow":"#ffd500","cyan":"#00ffff","blue":"#0066ff","red":"#ff0000","white":"#ffffff","light_green":"#00ffae"}
-            color=hex_to_bgr(hex_color["green"])
-            cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), color, 1)
-            x1, y1, x2, y2 = box
-            t=2
-            face_width = x2 - x1
-            face_height = y2 - y1
-            l = min(face_width, face_height) // 5
-            # Draw top-left corner
-            cv2.line(image, (x1, y1), (x1 + l, y1), color, thickness=t)
-            cv2.line(image, (x1, y1), (x1, y1 + l), color, thickness=t)
-            # Draw top-right corner
-            cv2.line(image, (x2, y1), (x2 - l, y1), color, thickness=t)
-            cv2.line(image, (x2, y1), (x2, y1 + l), color, thickness=t)
-            # Draw bottom-left corner
-            cv2.line(image, (x1, y2), (x1 + l, y2), color, thickness=t)
-            cv2.line(image, (x1, y2), (x1, y2 - l), color, thickness=t)
-            # Draw bottom-right corner
-            cv2.line(image, (x2, y2), (x2 - l, y2), color, thickness=t)
-            cv2.line(image, (x2, y2), (x2, y2 - l), color, thickness=t)
-                    
-            if display_prediction_labels:
-                # Define the text parameters
-                font = cv2.FONT_HERSHEY_SIMPLEX
-                font_scale = 0.8
-                color = (255, 255, 255)
-                thickness = 1
 
-                # Create the text string
-                text = '{:.2f}'.format(score)
-
-                # Determine the text size
-                text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
-
-                # Define the text position relative to the box
-                text_x = box[0]
-                text_y = box[1] - text_size[1]
-
-                # Draw the text background rectangle
-                cv2.rectangle(image, (text_x, text_y), (text_x + text_size[0], text_y + text_size[1]), hex_to_bgr(hex_color["blue"]), -1)
-                # Draw the text on top of the background rectangle
-                cv2.putText(image, text, (text_x, text_y + text_size[1]), font, font_scale, color, thickness)
-            
             
         if square_blur_face:
             try:
@@ -302,6 +258,45 @@ def draw_boxes_with_scores(image, boxes, scores,bounding_box=True,display_predic
         image_bg = cv2.bitwise_and(image, image, mask=inverse_mask)
         image_fg = cv2.bitwise_and(image_fg, image_fg, mask=mask)
         image = cv2.add(image_bg, image_fg)
+    if bounding_box:
+        # Draw the box on the image
+        hex_color={"green":"#00ff51","yellow":"#ffd500","cyan":"#00ffff","blue":"#0066ff","red":"#ff0000","white":"#ffffff","light_green":"#00ffae"}
+        color=hex_to_bgr(hex_color["green"])
+        cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), color, 1)
+        x1, y1, x2, y2 = box
+        t=2
+        face_width = x2 - x1
+        face_height = y2 - y1
+        l = min(face_width, face_height) // 5
+        # Draw top-left corner
+        cv2.line(image, (x1, y1), (x1 + l, y1), color, thickness=t)
+        cv2.line(image, (x1, y1), (x1, y1 + l), color, thickness=t)
+        # Draw top-right corner
+        cv2.line(image, (x2, y1), (x2 - l, y1), color, thickness=t)
+        cv2.line(image, (x2, y1), (x2, y1 + l), color, thickness=t)
+        # Draw bottom-left corner
+        cv2.line(image, (x1, y2), (x1 + l, y2), color, thickness=t)
+        cv2.line(image, (x1, y2), (x1, y2 - l), color, thickness=t)
+        # Draw bottom-right corner
+        cv2.line(image, (x2, y2), (x2 - l, y2), color, thickness=t)
+        cv2.line(image, (x2, y2), (x2, y2 - l), color, thickness=t)
+        # Define the margin you want between the bounding box and the text
+        if display_prediction_labels:
+            margin = 5
+            thickness = 1
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            font_scale = 0.8
+            text = '{:.2f}'.format(score)
+            text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
+            # Adjust the text position relative to the box
+            text_x = box[0]
+            text_y = box[1] - text_size[1] - margin  # Move text up by the margin amount
+
+            # Draw the text background rectangle
+            cv2.rectangle(image, (text_x, text_y), (text_x + text_size[0], text_y + text_size[1]), hex_to_bgr(hex_color["blue"]), -1)
+
+            # Draw the text on top of the background rectangle
+            cv2.putText(image, text, (text_x, text_y + text_size[1]), font, font_scale, (255,255,255), thickness)
     return image
 
 
